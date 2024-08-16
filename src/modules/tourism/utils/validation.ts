@@ -48,12 +48,18 @@ export const validateFormRowInfo = (values: {
   return errors;
 };
 
+
+const urlRegex =
+  /^(https?:\/\/)?(www\.)?([a-z\d]([-a-z\d]{0,61}[a-z\d])?\.)+[a-z]{2,6}(:\d{1,5})?(\/.*)?$/i;
+
+
 export const validateForm = Yup.object().shape({
   categories: Yup.array().min(1, validationTexts.requiredSelect),
   seasons: Yup.array().min(1, validationTexts.requiredSelect),
   urlLT: Yup.string()
     .required(validationTexts.requireText)
-    .url(validationTexts.badUrlFormat),
+    .trim()
+    .matches(urlRegex, validationTexts.badUrlFormat),
   nameLT: Yup.string().required(validationTexts.requireText).nullable(),
   descriptionLT: Yup.string().required(validationTexts.requireText).nullable(),
   geom: Yup.object().required(validationTexts.requiredMap).nullable(),
