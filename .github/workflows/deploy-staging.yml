@@ -24,6 +24,7 @@ jobs:
           push: true
           build-args: |
             NODE_ENV=production
+            VITE_MAPS_HOST=https://maps.biip.lt
 
       - name: Trigger deploy
         uses: AplinkosMinisterija/reusable-workflows/.github/actions/trigger-workflow-and-wait@main
