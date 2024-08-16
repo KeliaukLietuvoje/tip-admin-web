@@ -18,6 +18,8 @@ ARG VITE_BASE_URL=/admin
 
 # Set env variables
 ARG NODE_ENV=production
+ARG VITE_MAPS_HOST=
+
 
 # Build and cleanup
 RUN yarn build
