@@ -50,6 +50,7 @@ interface Delete {
 interface Create {
   resource: string;
   params?: any;
+  config?: any;
 }
 
 interface TableList<T = any> {
@@ -150,8 +151,8 @@ class ApiClass {
     );
   };
 
-  post = async ({ resource, params }: Create) => {
-    return this.errorWrapper(() => this.axios.post(`/${resource}`, params));
+  post = async ({ resource, params, config }: Create) => {
+    return this.errorWrapper(() => this.axios.post(`/${resource}`, { params, config }));
   };
 
   getTenants = async ({ filter, page, query }: TableList) =>
@@ -470,6 +471,32 @@ class ApiClass {
       resource: `${Resources.FORMS}/${id}/${Resources.HISTORY}`,
       page,
       pageSize,
+    });
+
+  getAnimalIcons = async () =>
+    await this.getAll({
+      resource: Resources.ICONS,
+    });
+
+  createIcon = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const config = {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    };
+
+    return await this.post({
+      resource: Resources.ICONS,
+      params: formData,
+      config,
+    });
+  };
+
+  deleteIcon = async (id: string) =>
+    await this.delete({
+      resource: Resources.ICONS,
+      id,
     });
 }
 

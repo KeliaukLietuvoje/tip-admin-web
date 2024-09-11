@@ -1,21 +1,21 @@
-import { map } from "lodash";
-import { useEffect, useRef } from "react";
-import { useInfiniteQuery } from "react-query";
-import { useParams } from "react-router-dom";
-import styled from "styled-components";
-import { ButtonColors } from "../../../../components/buttons/Button";
-import Avatar from "../../../../components/other/Avatar";
-import Icon from "../../../../components/other/Icons";
-import LoaderComponent from "../../../../components/other/LoaderComponent";
-import SimpleContainer from "../../../../components/other/SimpleContainer";
-import { device } from "../../../../styles";
-import { intersectionObserverConfig } from "../../../../utils/configs";
-import { formatDateAndTime } from "../../../../utils/format";
-import { handleError } from "../../../../utils/functions";
-import { HistoryTypes } from "../../utils/constants";
-import { formLabels } from "../../utils/texts";
-import { theme } from "../../utils/theme";
-import { FormHistory } from "../../utils/types";
+import { map } from 'lodash';
+import { useEffect, useRef } from 'react';
+import { useInfiniteQuery } from 'react-query';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { ButtonColors } from '../../../../components/buttons/Button';
+import Avatar from '../../../../components/other/Avatar';
+import Icon from '../../../../components/other/Icons';
+import LoaderComponent from '../../../../components/other/LoaderComponent';
+import SimpleContainer from '../../../../components/other/SimpleContainer';
+import { device } from '../../../../styles';
+import { intersectionObserverConfig } from '../../../../utils/configs';
+import { formatDateAndTime } from '../../../../utils/format';
+import { handleErrorToastFromServer } from '../../../../utils/functions';
+import { HistoryTypes } from '../../utils/constants';
+import { formLabels } from '../../utils/texts';
+import { theme } from '../../utils/theme';
+import { FormHistory } from '../../utils/types';
 
 interface FormHistoryContainerProps {
   formHistoryLabels: { [key: string]: string };
@@ -24,22 +24,12 @@ interface FormHistoryContainerProps {
 }
 
 const iconsByHistoryType = {
-  [HistoryTypes.APPROVED]: (
-    <Icon name="approved" color={theme.colors[ButtonColors.SUCCESS]} />
-  ),
-  [HistoryTypes.REJECTED]: (
-    <Icon name="rejected" color={theme.colors[ButtonColors.DANGER]} />
-  ),
-  [HistoryTypes.RETURNED]: (
-    <Icon name="returned" color={theme.colors[ButtonColors.PRIMARY]} />
-  )
+  [HistoryTypes.APPROVED]: <Icon name="approved" color={theme.colors[ButtonColors.SUCCESS]} />,
+  [HistoryTypes.REJECTED]: <Icon name="rejected" color={theme.colors[ButtonColors.DANGER]} />,
+  [HistoryTypes.RETURNED]: <Icon name="returned" color={theme.colors[ButtonColors.PRIMARY]} />,
 };
 
-const FormHistoryContainer = ({
-  formHistoryLabels,
-  endpoint,
-  name
-}: FormHistoryContainerProps) => {
+const FormHistoryContainer = ({ formHistoryLabels, endpoint, name }: FormHistoryContainerProps) => {
   const { id } = useParams();
   const observerRef = useRef(null);
 
@@ -47,23 +37,26 @@ const FormHistoryContainer = ({
     const data = await endpoint({
       id,
       page: page,
-      pageSize: 5
+      pageSize: 5,
     });
 
     return {
       data: data?.rows,
-      page: data.page < data.totalPages ? data.page + 1 : undefined
+      page: data.page < data.totalPages ? data.page + 1 : undefined,
     };
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } =
-    useInfiniteQuery([name], ({ pageParam }) => fetchData(pageParam), {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching } = useInfiniteQuery(
+    [name],
+    ({ pageParam }) => fetchData(pageParam),
+    {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       getNextPageParam: (lastPage) => lastPage.page,
-      cacheTime: 60000
-    });
+      cacheTime: 60000,
+    },
+  );
 
   useEffect(() => {
     const currentObserver = observerRef.current;
@@ -100,19 +93,16 @@ const FormHistoryContainer = ({
           return (
             <Row key={`formHistory-${index}`}>
               <StyledAvatar
-                name={`${history?.createdBy?.firstName || "Sistema"}`}
-                surname={`${history?.createdBy?.lastName || " "}`}
+                name={`${history?.createdBy?.firstName || 'Sistema'}`}
+                surname={`${history?.createdBy?.lastName || ' '}`}
               />
               <Column>
                 <FullName>
-                  {!history?.createdBy?.firstName &&
-                  !history?.createdBy?.lastName
-                    ? "Sistema"
+                  {!history?.createdBy?.firstName && !history?.createdBy?.lastName
+                    ? 'Sistema'
                     : `${history?.createdBy?.firstName} ${history?.createdBy?.lastName}`}
                 </FullName>
-                <DateContainer>
-                  {formatDateAndTime(history.createdAt)}
-                </DateContainer>
+                <DateContainer>{formatDateAndTime(history.createdAt)}</DateContainer>
                 <Comment>{history.comment}</Comment>
                 <InnerContainer>
                   <InnerRow>

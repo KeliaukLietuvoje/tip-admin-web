@@ -12,7 +12,7 @@ import LoaderComponent from '../../../components/other/LoaderComponent';
 import Modal from '../../../components/other/Modal';
 import { device } from '../../../styles';
 import { Group } from '../../../types';
-import { handleError } from '../../../utils/functions';
+import { handleErrorToastFromServer } from '../../../utils/functions';
 import { buttonsTitles } from '../../../utils/texts';
 import api from '../utils/api';
 import { filterOutGroup } from '../utils/functions';
@@ -56,7 +56,7 @@ const GroupDeleteComponent = ({ group }: AdditionalDeleteGroupComponentInterface
       }),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(routes.groups);
@@ -71,7 +71,7 @@ const GroupDeleteComponent = ({ group }: AdditionalDeleteGroupComponentInterface
     async () => filterOutGroup((await api.getGroupsForGroup()).rows, id),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       enabled: isGroupWithUsers,
     },

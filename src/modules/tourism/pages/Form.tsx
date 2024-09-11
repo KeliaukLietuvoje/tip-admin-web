@@ -19,7 +19,7 @@ import SimpleContainer from '../../../components/other/SimpleContainer';
 import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
 import { ColumnOne, ColumnTwo, FormContainer, FormRow } from '../../../styles/CommonStyles';
 import { DeleteInfoProps, FeatureCollection } from '../../../types';
-import { handleError, isNew } from '../../../utils/functions';
+import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
 import FormHistoryContainer from '../component/containers/FormHistory';
 
 import Switch from '../component/buttons/Switch';
@@ -91,7 +91,7 @@ const FormPage = () => {
       isNew(id) ? api.createForm(values) : api.updateForm(id, values),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(slugs.forms);
@@ -102,7 +102,7 @@ const FormPage = () => {
 
   const disable = useMutation(() => api.formDisable(id), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['tourismForm']);
@@ -111,7 +111,7 @@ const FormPage = () => {
   });
   const removeForm = useMutation(() => api.deleteForm(id), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       navigate(slugs.forms);
@@ -130,7 +130,7 @@ const FormPage = () => {
 
   const uploadPhotos = useMutation((files: File[]) => api.uploadFormPhotos(files), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {},
     retry: false,

@@ -1,21 +1,21 @@
-import { isEmpty } from "lodash";
-import { useMutation, useQuery } from "react-query";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import styled from "styled-components";
-import MultiSelect from "../../../components/fields/MultiSelect";
-import TextField from "../../../components/fields/TextField";
-import LoaderComponent from "../../../components/other/LoaderComponent";
-import SimpleContainer from "../../../components/other/SimpleContainer";
-import FormPageWrapper from "../../../components/wrappers/FormPageWrapper";
-import { App, Municipality } from "../../../types";
-import { handleError, isNew } from "../../../utils/functions";
-import { useCheckAccess } from "../../../utils/hooks";
-import { Accesses } from "../utils/accesses";
-import Api from "../utils/api";
-import { filterOutAdmin } from "../utils/functions";
-import { routes } from "../utils/routes";
-import { formLabels, inputLabels, pageTitles } from "../utils/texts";
-import { validateGroupForm } from "../utils/validation";
+import { isEmpty } from 'lodash';
+import { useMutation, useQuery } from 'react-query';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import styled from 'styled-components';
+import MultiSelect from '../../../components/fields/MultiSelect';
+import TextField from '../../../components/fields/TextField';
+import LoaderComponent from '../../../components/other/LoaderComponent';
+import SimpleContainer from '../../../components/other/SimpleContainer';
+import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
+import { App, Municipality } from '../../../types';
+import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
+import { useCheckAccess } from '../../../utils/hooks';
+import { Accesses } from '../utils/accesses';
+import Api from '../utils/api';
+import { filterOutAdmin } from '../utils/functions';
+import { routes } from '../utils/routes';
+import { formLabels, inputLabels, pageTitles } from '../utils/texts';
+import { validateGroupForm } from '../utils/validation';
 
 export interface GroupProps {
   name?: string;
@@ -30,106 +30,89 @@ const GroupsFormPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const canManageMunicipalities = useCheckAccess(
-    Accesses.MANAGE_MUNICIPALITIES
-  );
+  const canManageMunicipalities = useCheckAccess(Accesses.MANAGE_MUNICIPALITIES);
 
   const title = !isNew(id) ? pageTitles.updateGroup : pageTitles.newGroup;
 
   const handleSubmit = async ({ name, apps, municipalities }: GroupProps) => {
-    const allModulesSelected =
-      apps?.length === filterOutAdmin(apps || []).length;
+    const allModulesSelected = apps?.length === filterOutAdmin(apps || []).length;
 
-    const groupApps =
-      parent && allModulesSelected ? [] : apps?.map((app) => (app as App)?.id);
+    const groupApps = parent && allModulesSelected ? [] : apps?.map((app) => (app as App)?.id);
 
     const params = {
       name,
       apps: groupApps,
       ...(!isEmpty(municipalities) && {
-        municipalities: municipalities?.map(
-          (municipality) => (municipality as Municipality)?.id
-        )
-      })
+        municipalities: municipalities?.map((municipality) => (municipality as Municipality)?.id),
+      }),
     };
 
     if (isNew(id)) {
       return await createGroup.mutateAsync({
         ...(!!parent && { parent }),
-        ...params
+        ...params,
       });
     }
 
     return await updateGroup.mutateAsync(params);
   };
 
-  const createGroup = useMutation(
-    (params: GroupProps) => Api.createGroup({ params }),
-    {
-      onError: () => {
-        handleError();
-      },
-      onSuccess: () => {
-        navigate(routes.groups);
-      },
-      retry: false
-    }
-  );
+  const createGroup = useMutation((params: GroupProps) => Api.createGroup({ params }), {
+    onError: () => {
+      handleErrorToastFromServer();
+    },
+    onSuccess: () => {
+      navigate(routes.groups);
+    },
+    retry: false,
+  });
 
-  const updateGroup = useMutation(
-    (params: GroupProps) => Api.updateGroup({ params, id: id! }),
-    {
-      onError: () => {
-        handleError();
-      },
-      onSuccess: () => {
-        navigate(routes.groups);
-      },
-      retry: false
-    }
-  );
+  const updateGroup = useMutation((params: GroupProps) => Api.updateGroup({ params, id: id! }), {
+    onError: () => {
+      handleErrorToastFromServer();
+    },
+    onSuccess: () => {
+      navigate(routes.groups);
+    },
+    retry: false,
+  });
 
   const { data: apps = [] } = useQuery(
-    ["apps", parent],
-    async () =>
-      filterOutAdmin((await Api.getApps({ query: { group: parent } })).rows!),
+    ['apps', parent],
+    async () => filterOutAdmin((await Api.getApps({ query: { group: parent } })).rows!),
     {
       onError: () => {
-        handleError();
-      }
-    }
+        handleErrorToastFromServer();
+      },
+    },
   );
 
-  const {} = useQuery(
-    ["parentGroup", id],
-    async () => await Api.getParentOfGroup(parent),
-    {
-      onError: () => {
-        navigate(routes.groups);
-      },
-      enabled: !!parent
-    }
-  );
+  const {} = useQuery(['parentGroup', id], async () => await Api.getParentOfGroup(parent), {
+    onError: () => {
+      navigate(routes.groups);
+    },
+    enabled: !!parent,
+  });
 
   const { data: municipalities = [] } = useQuery(
-    ["municipalities", id],
+    ['municipalities', id],
     async () => (await Api.getMunicipalities()).rows,
     {
       onError: () => {
         navigate(routes.groups);
-      }
-    }
+      },
+    },
   );
 
   const { isLoading, data: group } = useQuery(
-    ["formGroup", id],
+    ['formGroup', id],
     () => Api.getFormGroup({ id, canManageMunicipalities }),
     {
       onError: () => {
         navigate(routes.groups);
       },
-      enabled: !isNew(id)
-    }
+      enabled: !isNew(id),
+    },
   );
 
   const getGroupApps = () => {
@@ -140,14 +123,12 @@ const GroupsFormPage = () => {
   };
 
   const initialValues: GroupProps = {
-    name: group?.name || "",
+    name: group?.name || '',
     apps: filterOutAdmin(getGroupApps()),
     municipalities:
       group?.municipalities?.map((groupMunicipalities) => {
-        return municipalities?.find(
-          (municipality) => municipality.id === groupMunicipalities
-        );
-      }) || []
+        return municipalities?.find((municipality) => municipality.id === groupMunicipalities);
+      }) || [],
   };
 
   const renderForm = (values: GroupProps, errors: any, handleChange) => {
@@ -159,7 +140,7 @@ const GroupsFormPage = () => {
             value={values.name}
             name="name"
             error={errors.name}
-            onChange={(e) => handleChange("name", e)}
+            onChange={(e) => handleChange('name', e)}
           />
           <MultiSelect
             label={inputLabels.moduleSelection}
@@ -168,7 +149,7 @@ const GroupsFormPage = () => {
             name="apps"
             options={apps!}
             error={errors.apps}
-            onChange={(apps: App[]) => handleChange("apps", apps)}
+            onChange={(apps: App[]) => handleChange('apps', apps)}
           />
           {canManageMunicipalities && (
             <MultiSelect
@@ -180,7 +161,7 @@ const GroupsFormPage = () => {
               options={municipalities}
               error={errors.apps}
               onChange={(municipalities) => {
-                handleChange("municipalities", municipalities);
+                handleChange('municipalities', municipalities);
               }}
             />
           )}

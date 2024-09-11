@@ -95,6 +95,7 @@ export const validationTexts = {
 };
 
 export const inputLabels = {
+  selectIcon: 'Pasirinkite ikoną',
   chooseOption: 'Pasirinkite',
   info: 'Informacija',
   name: 'Pavadinimas',

@@ -10,7 +10,7 @@ import { device } from '../styles';
 import { Columns, User } from '../types';
 import api from './api';
 import { pathToModule, ServerErrorCodes } from './constants';
-import { handleError, mapSlug, sortDesktop, sortMobile } from './functions';
+import { handleErrorToastFromServer, mapSlug, sortDesktop, sortMobile } from './functions';
 import { clearCookies, emptyUser } from './loginFunctions';
 import { slugs } from './routes';
 
@@ -38,7 +38,7 @@ export const useTableData = ({ endpoint, mapData, dependencyArray, name }: Table
 
   const { isFetching } = useQuery([name, ...dependencyArray], () => endpoint(), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: (list) => {
       setTableData({
@@ -123,7 +123,7 @@ export const useUserInfoMutation = () => {
         return;
       }
 
-      return handleError();
+      return handleErrorToastFromServer();
     },
     onSuccess: (data: User) => {
       if (data) {
@@ -142,7 +142,7 @@ export const useLogoutMutation = () => {
 
   const { mutateAsync } = useMutation(() => api.logout(), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       clearCookies();
@@ -186,7 +186,7 @@ export const useSetPassword = () => {
     },
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
     },
   );

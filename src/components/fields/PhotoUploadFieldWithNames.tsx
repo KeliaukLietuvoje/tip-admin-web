@@ -2,7 +2,7 @@ import { isEmpty } from 'lodash';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { device } from '../../styles';
-import { handleError, validateFileTypes } from '../../utils/functions';
+import { handleErrorToastFromServer, validateFileTypes } from '../../utils/functions';
 import { inputLabels } from '../../utils/texts';
 import Icon from '../other/Icons';
 import Loader from '../other/Loader';
@@ -48,7 +48,7 @@ const PhotoFieldWithNames = ({
 
   const handleSetFiles = async (currentFiles: File[]) => {
     const isValidFileTypes = validateFileTypes(currentFiles, availableMimeTypes);
-    if (!isValidFileTypes) return handleError('badFileTypes');
+    if (!isValidFileTypes) return handleErrorToastFromServer('badFileTypes');
     if (onUpload) {
       setLoading(true);
       await onUpload(currentFiles);

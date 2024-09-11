@@ -5,7 +5,7 @@ import LoaderComponent from '../../../components/other/LoaderComponent';
 import SimpleContainer from '../../../components/other/SimpleContainer';
 import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
 import { ColumnOne, FormRow, InnerContainer } from '../../../styles/CommonStyles';
-import { handleError, isNew } from '../../../utils/functions';
+import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
 import api from '../utils/api';
 import { slugs } from '../utils/slugs';
 import { formLabels, inputLabels, pageTitles } from '../utils/texts';
@@ -36,7 +36,7 @@ const VisitInfoForm = () => {
     (values: Info) => (isNew(id) ? api.createVisitInfo(values) : api.updateVisitInfo(id!, values)),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(slugs.visitInfos);
@@ -67,7 +67,7 @@ const VisitInfoForm = () => {
                 label={inputLabels.nameEn}
                 value={values?.nameEn}
                 error={errors?.nameEn}
-                name="name"
+                name="nameEn"
                 onChange={(name) => handleChange('nameEn', name)}
               />
             </FormRow>

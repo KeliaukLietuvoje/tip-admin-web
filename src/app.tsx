@@ -17,7 +17,7 @@ import { useAppDispatch, useAppSelector } from './state/hooks';
 import { actions } from './state/Module/reducer';
 import { GlobalStyle } from './styles';
 import api from './utils/api';
-import { handleError } from './utils/functions';
+import { handleErrorToastFromServer } from './utils/functions';
 import { useGetCurrentPathModule, useUserInfoMutation } from './utils/hooks';
 import { handleUpdateTokens } from './utils/loginFunctions';
 import { filteredRoutes, themes } from './utils/router';
@@ -53,7 +53,7 @@ function App() {
     () => api.refreshToken(),
     {
       onError: ({ response }: any) => {
-        handleError(response);
+        handleErrorToastFromServer(response);
       },
       onSuccess: (data) => {
         handleUpdateTokens(data);

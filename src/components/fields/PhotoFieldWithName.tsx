@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { device } from '../../styles';
-import { handleError } from '../../utils/functions';
+import { handleErrorToastFromServer } from '../../utils/functions';
 import { buttonsTitles, inputLabels } from '../../utils/texts';
 import Icon from '../other/Icons';
 import LoaderComponent from '../other/LoaderComponent';
@@ -50,7 +50,7 @@ const PhotoFieldWithName = ({
       <ContentRow>
         <StyledImg
           onError={() => {
-            handleError('photoNotUploaded');
+            handleErrorToastFromServer('photoNotUploaded');
             setLoading(false);
           }}
           display={!loading}

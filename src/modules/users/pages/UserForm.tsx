@@ -13,7 +13,7 @@ import LoaderComponent from '../../../components/other/LoaderComponent';
 import SwitchContainer, { SwitchItem } from '../../../components/other/SwitchContainer';
 import { useAppSelector } from '../../../state/hooks';
 import { FormRow } from '../../../styles/CommonStyles';
-import { getErrorMessage, handleError, isNew } from '../../../utils/functions';
+import { getErrorMessage, handleErrorToastFromServer, isNew } from '../../../utils/functions';
 import GroupsContainer from '../Components/GroupContainer';
 import { getInheritedApps, handleAddApps, handleToggleApps } from '../utils/apps';
 import { routes } from '../utils/routes';
@@ -96,7 +96,7 @@ const GroupsFormPage = () => {
 
   const updateUser = useMutation((params: UserFormProps) => Api.updateUser({ params, id: id! }), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       navigate(routes.users);
@@ -109,7 +109,7 @@ const GroupsFormPage = () => {
     async () => (await Api.getGroupsOptions()).rows,
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
     },
   );
@@ -121,7 +121,7 @@ const GroupsFormPage = () => {
       }),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(routes.users);

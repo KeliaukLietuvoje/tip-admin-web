@@ -6,7 +6,7 @@ import LoaderComponent from '../../../components/other/LoaderComponent';
 import SimpleContainer from '../../../components/other/SimpleContainer';
 import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
 import { ColumnOne, FormRow, InnerContainer } from '../../../styles/CommonStyles';
-import { handleError, isNew } from '../../../utils/functions';
+import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
 import api from '../utils/api';
 import { getCategoriesOptions } from '../utils/functions';
 import { slugs } from '../utils/slugs';
@@ -47,7 +47,7 @@ const CategoryForm = () => {
 
   const createForm = useMutation((values: { [key: string]: any }) => api.createCategory(values), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       navigate(slugs.categories);
@@ -59,7 +59,7 @@ const CategoryForm = () => {
     (values: { [key: string]: any }) => api.updateCategory(id!, values),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(slugs.categories);
@@ -101,7 +101,7 @@ const CategoryForm = () => {
                 label={inputLabels.nameEn}
                 value={values?.nameEn}
                 error={errors?.nameEn}
-                name="name"
+                name="image.png"
                 onChange={(name) => handleChange('nameEn', name)}
               />
             </FormRow>

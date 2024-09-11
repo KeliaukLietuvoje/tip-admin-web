@@ -9,7 +9,7 @@ import SimpleContainer from '../../../components/other/SimpleContainer';
 import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
 import { FormRow } from '../../../styles/CommonStyles';
 import { App, DeleteInfoProps, Group, Module, Permission, RoleType } from '../../../types';
-import { handleError, isNew } from '../../../utils/functions';
+import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
 import { Permissions } from '../../../utils/router';
 import { accessLabels, featureLabels } from '../../../utils/texts';
 import Api from '../utils/api';
@@ -59,7 +59,7 @@ const PermissionFormPage = () => {
 
   const createPermission = useMutation((params: Permission) => Api.createPermission({ params }), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       navigate(routes.permissions);
@@ -71,7 +71,7 @@ const PermissionFormPage = () => {
     (params: Permission) => Api.updatePermission({ params, id: id! }),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(routes.permissions);
@@ -87,7 +87,7 @@ const PermissionFormPage = () => {
       }),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(routes.permissions);
@@ -119,14 +119,14 @@ const PermissionFormPage = () => {
     async () => (await Api.getPermissionGroups()).rows,
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
     },
   );
 
   const { data: userApp } = useQuery(['userModule', id], async () => Api.getUserModule(), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
   });
 

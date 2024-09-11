@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { toast, ToastPosition } from 'react-toastify';
 import { FilterConfig } from '../components/other/DynamicFilter/Filter';
 import { Columns, Config, RoleType, User } from '../types';
 import { serverErrorTypeLabels, validationTexts } from './texts';
@@ -63,7 +63,7 @@ export const handleResponse = async ({ endpoint, onSuccess, onError }: SetRespon
   }
 
   if (!response || response?.error) {
-    return handleError(response?.error?.type);
+    return handleErrorToastFromServer(response?.error?.type);
   }
 
   if (onSuccess) {
@@ -76,23 +76,30 @@ export const handleResponse = async ({ endpoint, onSuccess, onError }: SetRespon
 export const getErrorMessage = (error) =>
   validationTexts[error] || serverErrorTypeLabels[error] || validationTexts.error;
 
-export const handleError = (responseError?: string) => {
-  toast.error(getErrorMessage(responseError), {
-    position: 'top-center',
-    autoClose: 5000,
-    hideProgressBar: true,
-    closeOnClick: true,
+const toastOptions = {
+  position: 'top-center' as ToastPosition,
+  autoClose: 5000,
+  hideProgressBar: true,
+  closeOnClick: true,
+};
+
+const showToast = (type: 'error' | 'success', message: string) => {
+  toast[type](message, {
+    ...toastOptions,
+    pauseOnHover: type === 'success',
   });
 };
 
+export const handleErrorToastFromServer = (responseError?: string) => {
+  showToast('error', getErrorMessage(responseError));
+};
+
+export const handleErrorToast = (message: string) => {
+  showToast('error', message);
+};
+
 export const handleSuccess = (message: string) => {
-  toast.success(message, {
-    position: 'top-center',
-    autoClose: 5000,
-    hideProgressBar: true,
-    closeOnClick: true,
-    pauseOnHover: true,
-  });
+  showToast('success', message);
 };
 
 export const isNew = (id: string | undefined) => {
