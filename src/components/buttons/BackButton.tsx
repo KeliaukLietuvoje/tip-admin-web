@@ -1,21 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { actions } from '../../state/backUrl/reducer';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { buttonsTitles } from '../../utils/texts';
 import Icon from '../other/Icons';
 import Button, { ButtonColors } from './Button';
 
 const BackButton = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const backUrl = useAppSelector((state) => state.backUrl.storeUrl?.at(-1));
 
   return (
     <StyledButton
       onClick={() => {
-        navigate((backUrl || -1) as string);
-        dispatch(actions.updateBackUrl());
+        navigate(-1);
       }}
       leftIcon={<StyledBackIcon name="back" />}
       variant={ButtonColors.TRANSPARENT}

@@ -168,7 +168,8 @@ const Icon = ({ name, className, height, width, color }: IconProps) => {
           </g>
         </svg>
       );
-
+    case 'dropdownArrow':
+      return <MdKeyboardArrowDown className={className} />;
     case 'date':
       return <BiCalendarEvent className={className} />;
     case 'search':

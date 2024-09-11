@@ -1,3 +1,4 @@
+import { TreeSelect } from 'antd';
 import { isEmpty } from 'lodash';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -25,14 +26,12 @@ import Switch from '../component/buttons/Switch';
 import FormPopup from '../component/other/FormPopup';
 import { default as api } from '../utils/api';
 import { Season, StatusTypes } from '../utils/constants';
-import {
-  getAdditionalInfoOption,
-  getCategoriesOptions,
-  getSubCategoriesOptions,
-  getVisitInfoOptions,
-} from '../utils/functions';
+import { getAdditionalInfoOption, getVisitInfoOptions } from '../utils/functions';
 import { getSeasonOptions } from '../utils/options';
 
+import FieldWrapper from '../../../components/fields/components/FieldWrapper';
+import Icon from '../../../components/other/Icons';
+import { device } from '../../../styles';
 import { slugs } from '../utils/slugs';
 import {
   buttonsTitles,
@@ -45,7 +44,7 @@ import {
   pageTitles,
   seasonLabels,
 } from '../utils/texts';
-import { Category, Info, VisitDuration } from '../utils/types';
+import { Info, VisitDuration } from '../utils/types';
 import { validateForm } from '../utils/validation';
 
 interface FormProps {
@@ -64,8 +63,7 @@ interface FormProps {
   isPaid: boolean;
   isAdaptedForForeigners: boolean;
   seasons: Season[];
-  categories: Category[];
-  subCategories: Category[];
+  categories: number[];
   photos: any[];
 }
 
@@ -85,8 +83,9 @@ const FormPage = () => {
   const disabled = !isNew(id) && !form?.canEdit;
   const canValidate = form?.canValidate;
   const title = isNew(id) ? pageTitles.newForm : form?.nameLT!;
-
+  const { data: categories = [] } = useQuery(['categories'], () => api.getAllCategories({}), {});
   const mapQueryString = !disabled ? '?types[]=point' : '?preview=true';
+  const { SHOW_PARENT } = TreeSelect;
   const createForm = useMutation(
     (values: { [key: string]: any }) =>
       isNew(id) ? api.createForm(values) : api.updateForm(id, values),
@@ -147,8 +146,6 @@ const FormPage = () => {
       seasons,
       visitInfo: values?.visitInfo?.id,
       additionalInfos: getIds(values.additionalInfos),
-      categories: getIds(values.categories),
-      subCategories: getIds(values.subCategories),
     };
 
     if (canValidate) {
@@ -170,7 +167,7 @@ const FormPage = () => {
   };
 
   const initialValues: FormProps = {
-    categories: form?.categories || [],
+    categories: form?.categories ? form.categories.map(Number) : [],
     visitInfo: form?.visitInfo,
     seasons: getSeasons(),
     visitDuration: form?.visitDuration,
@@ -184,7 +181,6 @@ const FormPage = () => {
     geom: form?.geom,
     isPaid: form?.isPaid || false,
     isAdaptedForForeigners: form?.isAdaptedForForeigners || false,
-    subCategories: form?.subCategories || [],
     photos: form?.photos || [],
     status: undefined,
     comment: '',
@@ -201,8 +197,6 @@ const FormPage = () => {
   const showSwitch = form?.status === StatusTypes.APPROVED;
 
   const renderForm = (values: FormProps, errors: any, handleChange: any) => {
-    const hasCategories = !isEmpty(values?.categories);
-
     const getSeasonOptions = () => {
       if (values.seasons.includes(Season.ALL)) {
         return [];
@@ -243,37 +237,29 @@ const FormPage = () => {
         <FormContainer>
           <ColumnOne>
             <SimpleContainer title={formLabels.categories}>
-              <FormRow columns={hasCategories ? 2 : 1}>
-                <AsyncMultiSelect
-                  label={inputLabels.categories}
-                  values={values?.categories}
-                  disabled={disabled}
-                  error={errors.categories}
-                  name="categories"
-                  onChange={(categories) => {
-                    handleChange('categories', categories);
-                    handleChange('subCategories', []);
-                  }}
-                  getOptionLabel={(option) => option?.name}
-                  loadOptions={(input, page) => getCategoriesOptions(input, page)}
-                />
-                {hasCategories && (
-                  <AsyncMultiSelect
-                    label={inputLabels.subCategories}
-                    dependantValue={values?.categories?.map((item) => item?.id)}
-                    values={values?.subCategories}
-                    disabled={disabled}
-                    error={errors.subCategories}
-                    name="subCategories"
-                    onChange={(categories) => {
-                      handleChange('subCategories', categories);
-                    }}
-                    getOptionLabel={(option) => option?.name}
-                    loadOptions={(input, page, ids) => {
-                      return getSubCategoriesOptions(input, page, ids);
-                    }}
-                  />
-                )}
+              <FormRow columns={1}>
+                <Container>
+                  <RelativeFieldWrapper
+                    error={errors.categories}
+                    showError={true}
+                    label={inputLabels.categories}
+                  >
+                    <StyledTreeSelect
+                      error={errors.categories}
+                      value={values?.categories || []}
+                      treeData={categories}
+                      style={{ width: '100%' }}
+                      dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                      fieldNames={{ label: 'name', children: 'children', value: 'id' }}
+                      treeCheckable
+                      onChange={(categories) => handleChange('categories', categories)}
+                      placeholder="Pasirinkite"
+                      showCheckedStrategy={SHOW_PARENT}
+                      disabled={disabled}
+                      suffixIcon={<StyledIcons name={'dropdownArrow'} />}
+                    />
+                  </RelativeFieldWrapper>
+                </Container>
               </FormRow>
             </SimpleContainer>
             <SimpleContainer title={formLabels.LTInfo}>
@@ -489,6 +475,59 @@ const FormPage = () => {
 const SwitchContainer = styled.div`
   display: flex;
   margin-bottom: 20px;
+`;
+
+const StyledTreeSelect = styled(TreeSelect)<{ error: boolean }>`
+  .ant-select-selector,
+  .ant-select-selection-search-input {
+    min-height: 40px !important;
+    padding: 0 12px !important;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+  }
+  .ant-select {
+    transition: none !important;
+  }
+
+  .ant-select-selection-overflow-item {
+    padding-top: 4px;
+  }
+
+  .ant-select-selector {
+    border: 1px solid ${({ theme, error }) => (!!error ? theme.colors.error : theme.colors.border)} !important;
+    border-radius: 4px !important;
+  }
+  .ant-select-selector,
+  .ant-select-disabled {
+    cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+    opacity: ${({ disabled }) => (disabled ? 0.48 : 1)};
+    background: white !important;
+  }
+
+  .ant-select-selector:focus-within {
+    border-color: ${({ theme }) => theme.colors.primary} !important;
+    box-shadow: 0 0 0 4px ${({ theme }) => `${theme.colors.primary}33`} !important;
+    outline: none !important;
+    animation-duration: 0s !important;
+    transition: none !important;
+  }
+`;
+
+const Container = styled.div`
+  display: block;
+  @media ${device.mobileL} {
+    border: none;
+  }
+`;
+
+const RelativeFieldWrapper = styled(FieldWrapper)`
+  position: relative;
+`;
+
+const StyledIcons = styled(Icon)`
+  color: #cdd5df;
+  font-size: 2.4rem;
 `;
 
 export default FormPage;
