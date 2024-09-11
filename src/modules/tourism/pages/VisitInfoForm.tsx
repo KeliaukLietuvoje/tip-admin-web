@@ -47,6 +47,7 @@ const VisitInfoForm = () => {
 
   const initialValues: Info = {
     name: visitInfo?.name || '',
+    nameEn: visitInfo?.nameEn || '',
   };
 
   const renderForm = (values: Info, errors: any, handleChange) => {
@@ -61,6 +62,13 @@ const VisitInfoForm = () => {
                 error={errors?.name}
                 name="name"
                 onChange={(name) => handleChange('name', name)}
+              />
+              <TextField
+                label={inputLabels.nameEn}
+                value={values?.nameEn}
+                error={errors?.nameEn}
+                name="name"
+                onChange={(name) => handleChange('nameEn', name)}
               />
             </FormRow>
           </SimpleContainer>

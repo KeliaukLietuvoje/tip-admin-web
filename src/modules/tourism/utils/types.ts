@@ -36,6 +36,7 @@ export interface UserFilterProps {
 export interface Category {
   id?: number;
   name: string;
+  nameEn: string;
   parent?: Category;
   children?: Category[];
 }
@@ -43,6 +44,7 @@ export interface Category {
 export interface Info {
   id?: number;
   name: string;
+  nameEn?: string;
 }
 
 export interface VisitDuration {

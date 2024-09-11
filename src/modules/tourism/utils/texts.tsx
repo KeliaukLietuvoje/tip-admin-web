@@ -159,7 +159,7 @@ export const deleteTitles = {
 };
 
 export const formLabels = {
-  info: 'informacija',
+  info: 'Informacija',
   history: 'Istorija',
   tenantUserInfo: 'Darbuotojo kontaktinė informacija',
   name: 'Pavadinimas',
@@ -197,6 +197,7 @@ export const inputLabels = {
   url: 'Interneto puslapis',
   audio: 'Audiogido nuoroda',
   name: 'Pavadinimas',
+  nameEn: 'Angliškas pavadinimas',
   subCategories: 'Subkategorijos',
   attribute: 'Atributas',
   noData: 'Nėra duomenų',
