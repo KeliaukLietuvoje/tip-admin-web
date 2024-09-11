@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import styled from 'styled-components';
 import { device } from '../../styles';
 import { Group } from '../../types';
+import { inputLabels } from '../../utils/texts';
 import Icon from '../other/Icons';
 import FieldWrapper from './components/FieldWrapper';
 
@@ -108,6 +109,7 @@ const TreeSelectField = ({
           value={value}
           treeData={clonedGroupOptions}
           fieldNames={{ label: 'name', children: 'children', value: 'id' }}
+          notFoundContent={inputLabels.noOptions}
           onChange={(value) => {
             onChange({
               id: value,

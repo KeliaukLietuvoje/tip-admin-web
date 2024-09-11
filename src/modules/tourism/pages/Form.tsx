@@ -249,6 +249,7 @@ const FormPage = () => {
                       value={values?.categories || []}
                       treeData={categories}
                       style={{ width: '100%' }}
+                      suffixIcon={<StyledIcons name={'dropdownArrow'} />}
                       dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                       fieldNames={{ label: 'name', children: 'children', value: 'id' }}
                       treeCheckable
@@ -256,7 +257,6 @@ const FormPage = () => {
                       placeholder="Pasirinkite"
                       showCheckedStrategy={SHOW_PARENT}
                       disabled={disabled}
-                      suffixIcon={<StyledIcons name={'dropdownArrow'} />}
                     />
                   </RelativeFieldWrapper>
                 </Container>
@@ -494,15 +494,16 @@ const StyledTreeSelect = styled(TreeSelect)<{ error: boolean }>`
     padding-top: 4px;
   }
 
-  .ant-select-selector {
-    border: 1px solid ${({ theme, error }) => (!!error ? theme.colors.error : theme.colors.border)} !important;
-    border-radius: 4px !important;
-  }
   .ant-select-selector,
   .ant-select-disabled {
     cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
     opacity: ${({ disabled }) => (disabled ? 0.48 : 1)};
     background: white !important;
+  }
+
+  .ant-select-selector {
+    border: 1px solid ${({ theme, error }) => (!!error ? theme.colors.error : theme.colors.border)} !important;
+    border-radius: 4px !important;
   }
 
   .ant-select-selector:focus-within {

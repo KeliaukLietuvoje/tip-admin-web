@@ -206,8 +206,6 @@ const Icon = ({ name, className, height, width, color }: IconProps) => {
       return <MdBusiness className={className} />;
     case 'userEmail':
       return <AiOutlineMail className={className} />;
-    case 'dropdownArrow':
-      return <MdKeyboardArrowDown className={className} />;
     case 'add':
       return <AiFillPlusCircle className={className} />;
     case 'more':
