@@ -31,7 +31,6 @@ const PhotoFieldWithName = ({
   onChangeName,
 }: PhotoFieldWithNameProps) => {
   const [loading, setLoading] = useState(true);
-  const isMain = photo.main;
 
   const handleDeleteClickClick = (e: any) => {
     e.stopPropagation();
@@ -41,12 +40,14 @@ const PhotoFieldWithName = ({
   };
   return (
     <ImageContainer key={`photo-${index}`}>
-      <LabelRow>
-        <ButtonRow onClick={handleDeleteClickClick}>
-          <StyledIcon name="deleteItem" />
-          <ButtonText>{buttonsTitles.delete}</ButtonText>
-        </ButtonRow>
-      </LabelRow>
+      {!disabled && (
+        <LabelRow>
+          <ButtonRow onClick={handleDeleteClickClick}>
+            <StyledIcon name="deleteItem" />
+            <ButtonText>{buttonsTitles.delete}</ButtonText>
+          </ButtonRow>
+        </LabelRow>
+      )}
       <ContentRow>
         <StyledImg
           onError={() => {
