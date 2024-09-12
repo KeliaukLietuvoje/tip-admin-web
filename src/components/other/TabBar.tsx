@@ -80,6 +80,7 @@ const TabButton = styled.div<{ isActive: boolean }>`
   border-bottom: ${({ isActive, theme }) =>
     `2px ${isActive ? theme.colors.primary : 'transparent'} solid`};
   margin-right: 24px;
+  cursor: pointer;
 `;
 
 const TabLabel = styled.span`

@@ -45,6 +45,7 @@ export interface Info {
   id?: number;
   name: string;
   nameEn?: string;
+  icon?: string;
 }
 
 export interface VisitDuration {

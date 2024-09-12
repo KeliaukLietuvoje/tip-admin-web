@@ -80,7 +80,7 @@ export enum Resources {
   CATEGORIES = 'categories',
   ADDITIONAL_INFOS = 'additionalInfos',
   VISIT_INFOS = 'visitInfos',
-  ICONS = 'icons',
+  ICONS = 'additionalInfos/icons',
 }
 
 export enum Populations {

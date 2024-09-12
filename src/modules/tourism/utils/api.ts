@@ -43,7 +43,7 @@ interface Update {
 
 interface Delete {
   resource: string;
-  id: string;
+  id?: string;
   params?: any;
 }
 
@@ -145,14 +145,14 @@ class ApiClass {
 
   delete = async ({ resource, id, params }: Delete) => {
     return this.errorWrapper(() =>
-      this.axios.delete(`/${resource}/${id}`, {
+      this.axios.delete(`/${resource}${id ? `/${id}` : ''}`, {
         data: params,
       }),
     );
   };
 
   post = async ({ resource, params, config }: Create) => {
-    return this.errorWrapper(() => this.axios.post(`/${resource}`, { params, config }));
+    return this.errorWrapper(() => this.axios.post(`/${resource}`, params));
   };
 
   getTenants = async ({ filter, page, query }: TableList) =>
@@ -344,7 +344,7 @@ class ApiClass {
     await this.get({
       resource: Resources.CATEGORIES,
       populate: [Populations.CHILDREN],
-      query,
+      query: { parent: { $exists: false } },
       page,
       filter,
     });
@@ -473,8 +473,8 @@ class ApiClass {
       pageSize,
     });
 
-  getAnimalIcons = async () =>
-    await this.getAll({
+  getAdditionalInfoIcons = async () =>
+    await this.get({
       resource: Resources.ICONS,
     });
 
@@ -493,10 +493,10 @@ class ApiClass {
     });
   };
 
-  deleteIcon = async (id: string) =>
+  deleteIcon = async (icon: string) =>
     await this.delete({
-      resource: Resources.ICONS,
-      id,
+      resource: `${Resources.ICONS}`,
+      params: { url: icon },
     });
 }
 

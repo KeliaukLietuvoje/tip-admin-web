@@ -9,6 +9,7 @@ import {
 import { inputLabels, validationTexts } from '../../utils/texts';
 import FieldWrapper from '../fields/components/FieldWrapper';
 import Icon, { IconProps } from './Icons';
+import Loader from './Loader';
 import LoaderComponent from './LoaderComponent';
 
 interface AnimalIconsProps {
@@ -21,8 +22,10 @@ export const AdditionalInfoIcons = ({ error, selectedIcon, handleSelect }: Anima
   const queryClient = useQueryClient();
   const { data: icons, isLoading } = useQuery(
     ['additionalInfoIcons'],
-    () => api.getAnimalIcons(),
-    {},
+    () => api.getAdditionalInfoIcons(),
+    {
+      retry: false,
+    },
   );
 
   const createIcon = useMutation((values: File) => api.createIcon(values), {
@@ -35,7 +38,7 @@ export const AdditionalInfoIcons = ({ error, selectedIcon, handleSelect }: Anima
     retry: false,
   });
 
-  const deleteIcon = useMutation((id: string) => api.deleteIcon(id), {
+  const deleteIcon = useMutation((icon: string) => api.deleteIcon(icon), {
     onError: () => {
       handleErrorToastFromServer();
     },
@@ -52,8 +55,9 @@ export const AdditionalInfoIcons = ({ error, selectedIcon, handleSelect }: Anima
     createIcon.mutateAsync(file);
   };
 
-  const handleDeleteIcon = async (id: string) => {
-    deleteIcon.mutateAsync(id);
+  const handleDeleteIcon = async (icon: string) => {
+    deleteIcon.mutateAsync(icon);
+    handleSelect('');
   };
 
   if (isLoading) {
@@ -64,25 +68,27 @@ export const AdditionalInfoIcons = ({ error, selectedIcon, handleSelect }: Anima
     <Container>
       <FieldWrapper error={error} label={inputLabels.selectIcon}>
         <InnerContainer>
-          {icons.map((icon, index) => {
-            const isSelectedIcon = icon.id === selectedIcon;
+          {createIcon.isLoading && <Loader />}
+
+          {icons?.map((icon, index) => {
+            const isSelectedIcon = icon === selectedIcon;
 
             return (
               <IconContainer
                 key={`animal-icon-${index}`}
                 selected={isSelectedIcon}
-                onClick={() => handleSelect(icon.id)}
+                onClick={() => handleSelect(icon)}
               >
                 <StyledCloseIconContainer
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDeleteIcon(icon.id);
+                    handleDeleteIcon(icon);
                   }}
                 >
                   <StyledCloseIcon name="close" />
                 </StyledCloseIconContainer>
 
-                <AnimalIcon src={icon.url} />
+                <AnimalIcon src={icon} />
               </IconContainer>
             );
           })}
@@ -183,6 +189,7 @@ const InnerContainer = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
   gap: 10px;
   padding-top: 0;
+  margin-bottom: 4px;
 `;
 
 const Container = styled.div`

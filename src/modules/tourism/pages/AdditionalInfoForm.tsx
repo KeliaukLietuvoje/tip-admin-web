@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextField from '../../../components/fields/TextField';
+import { AdditionalInfoIcons } from '../../../components/other/AdditionalInfoIcons';
 import LoaderComponent from '../../../components/other/LoaderComponent';
 import SimpleContainer from '../../../components/other/SimpleContainer';
 import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
@@ -10,7 +11,7 @@ import api from '../utils/api';
 import { slugs } from '../utils/slugs';
 import { formLabels, inputLabels, pageTitles } from '../utils/texts';
 import { Info } from '../utils/types';
-import { validateInfo } from '../utils/validation';
+import { validateAdditionalInfo } from '../utils/validation';
 
 const AdditionalInfoForm = () => {
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ const AdditionalInfoForm = () => {
   const initialValues: Info = {
     name: additionalInfo?.name || '',
     nameEn: additionalInfo?.nameEn || '',
+    icon: additionalInfo?.icon || '',
   };
 
   const renderForm = (values: Info, errors: any, handleChange) => {
@@ -85,6 +87,11 @@ const AdditionalInfoForm = () => {
                 name="nameEn"
                 onChange={(name) => handleChange('nameEn', name)}
               />
+              <AdditionalInfoIcons
+                error={errors?.icon}
+                selectedIcon={values.icon}
+                handleSelect={(icon) => handleChange('icon', icon)}
+              />
             </FormRow>
           </SimpleContainer>
         </ColumnOne>
@@ -102,7 +109,7 @@ const AdditionalInfoForm = () => {
       initialValues={initialValues}
       onSubmit={handleSubmit}
       renderForm={renderForm}
-      validationSchema={validateInfo}
+      validationSchema={validateAdditionalInfo}
     />
   );
 };
