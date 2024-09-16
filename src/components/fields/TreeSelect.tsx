@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
-import styled from "styled-components";
-import { device } from "../../styles";
-import { TreeSelect } from "antd";
-import Icon from "../other/Icons";
-import { cloneDeep } from "lodash";
-import { Group } from "../../types";
-import FieldWrapper from "./components/FieldWrapper";
+import { TreeSelect } from 'antd';
+import { cloneDeep } from 'lodash';
+import { useEffect } from 'react';
+import styled from 'styled-components';
+import { device } from '../../styles';
+import { Group } from '../../types';
+import { inputLabels } from '../../utils/texts';
+import Icon from '../other/Icons';
+import FieldWrapper from './components/FieldWrapper';
 
 export interface SelectFieldProps {
   id?: string;
@@ -37,7 +38,7 @@ const TreeSelectField = ({
   className,
   padding,
   onChange,
-  groups
+  groups,
 }: SelectFieldProps) => {
   const clonedGroupOptions = cloneDeep(groupOptions);
 
@@ -97,20 +98,21 @@ const TreeSelectField = ({
   }, [value, groups, groupOptions]);
 
   return (
-    <Container className={className} padding={padding || "0"}>
+    <Container className={className} padding={padding || '0'}>
       <RealativeFieldWrapper error={error} showError={showError} label={label}>
         <StyledTreeSelect
           error={!!error}
           treeDefaultExpandedKeys={[value]}
           suffixIcon={<StyledIcons name="dropdownArrow" />}
-          style={{ width: "100%", height: "40px" }}
-          dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
+          style={{ width: '100%', height: '40px' }}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
           value={value}
           treeData={clonedGroupOptions}
-          fieldNames={{ label: "name", children: "children", value: "id" }}
+          fieldNames={{ label: 'name', children: 'children', value: 'id' }}
+          notFoundContent={inputLabels.noOptions}
           onChange={(value) => {
             onChange({
-              id: value
+              id: value,
             });
           }}
         />
@@ -150,9 +152,7 @@ const StyledTreeSelect = styled(TreeSelect)<{ error: boolean }>`
   }
 
   .ant-select-selector {
-    border: 1px solid
-      ${({ theme, error }) =>
-        !!error ? theme.colors.error : theme.colors.border} !important;
+    border: 1px solid ${({ theme, error }) => (!!error ? theme.colors.error : theme.colors.border)} !important;
     border-radius: 4px !important;
   }
 

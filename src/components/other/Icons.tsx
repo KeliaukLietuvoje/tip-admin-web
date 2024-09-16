@@ -1,5 +1,6 @@
 import { AiFillPicture, AiFillPlusCircle, AiOutlineEye, AiOutlineMail } from 'react-icons/ai';
 import { BiCalendarEvent, BiMinusCircle, BiSearchAlt2, BiTrash } from 'react-icons/bi';
+import { CgMathPlus } from 'react-icons/cg';
 import { FiPhone, FiUser, FiUsers } from 'react-icons/fi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { HiOutlineArrowNarrowLeft } from 'react-icons/hi';
@@ -168,7 +169,8 @@ const Icon = ({ name, className, height, width, color }: IconProps) => {
           </g>
         </svg>
       );
-
+    case 'dropdownArrow':
+      return <MdKeyboardArrowDown className={className} />;
     case 'date':
       return <BiCalendarEvent className={className} />;
     case 'search':
@@ -205,8 +207,6 @@ const Icon = ({ name, className, height, width, color }: IconProps) => {
       return <MdBusiness className={className} />;
     case 'userEmail':
       return <AiOutlineMail className={className} />;
-    case 'dropdownArrow':
-      return <MdKeyboardArrowDown className={className} />;
     case 'add':
       return <AiFillPlusCircle className={className} />;
     case 'more':
@@ -215,6 +215,8 @@ const Icon = ({ name, className, height, width, color }: IconProps) => {
       return <TiThMenu className={className} />;
     case 'down':
       return <IoIosArrowDown className={className} />;
+    case 'plus':
+      return <CgMathPlus className={className} />;
 
     case 'active':
       return <MdDone className={className} />;

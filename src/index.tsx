@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import 'antd/dist/antd.min.css';
 import { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from 'react-query';

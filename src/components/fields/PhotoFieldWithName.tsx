@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { device } from '../../styles';
-import { handleError } from '../../utils/functions';
+import { handleErrorToastFromServer } from '../../utils/functions';
 import { buttonsTitles, inputLabels } from '../../utils/texts';
 import Icon from '../other/Icons';
 import LoaderComponent from '../other/LoaderComponent';
@@ -31,7 +31,6 @@ const PhotoFieldWithName = ({
   onChangeName,
 }: PhotoFieldWithNameProps) => {
   const [loading, setLoading] = useState(true);
-  const isMain = photo.main;
 
   const handleDeleteClickClick = (e: any) => {
     e.stopPropagation();
@@ -41,16 +40,18 @@ const PhotoFieldWithName = ({
   };
   return (
     <ImageContainer key={`photo-${index}`}>
-      <LabelRow>
-        <ButtonRow onClick={handleDeleteClickClick}>
-          <StyledIcon name="deleteItem" />
-          <ButtonText>{buttonsTitles.delete}</ButtonText>
-        </ButtonRow>
-      </LabelRow>
+      {!disabled && (
+        <LabelRow>
+          <ButtonRow onClick={handleDeleteClickClick}>
+            <StyledIcon name="deleteItem" />
+            <ButtonText>{buttonsTitles.delete}</ButtonText>
+          </ButtonRow>
+        </LabelRow>
+      )}
       <ContentRow>
         <StyledImg
           onError={() => {
-            handleError('photoNotUploaded');
+            handleErrorToastFromServer('photoNotUploaded');
             setLoading(false);
           }}
           display={!loading}

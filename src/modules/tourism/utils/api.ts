@@ -11,7 +11,7 @@ interface GetAllProps {
   page?: number | string;
   populate?: string[];
   filter?: any;
-  query?: string;
+  query?: any;
   pageSize?: string;
   search?: string;
   searchFields?: string[];
@@ -43,13 +43,14 @@ interface Update {
 
 interface Delete {
   resource: string;
-  id: string;
+  id?: string;
   params?: any;
 }
 
 interface Create {
   resource: string;
   params?: any;
+  config?: any;
 }
 
 interface TableList<T = any> {
@@ -61,7 +62,7 @@ interface TableList<T = any> {
   fields?: string[];
   resource?: Resources;
   search?: string;
-  query?: string | any;
+  query?: any;
   id?: number | string;
   userId?: number | string;
 }
@@ -99,35 +100,32 @@ class ApiClass {
     return data;
   };
 
-  getAll = async ({
+  get = async ({
     resource,
     page,
-    populate,
-    sort,
-    filter,
+
     pageSize,
-    search,
-    query,
-    scope,
-    searchFields,
-    fields,
-  }: GetAllProps): Promise<any> => {
+    ...rest
+  }: GetAllProps) => {
     const config = {
       params: {
         pageSize: pageSize || 10,
-        ...(!!populate && { populate }),
-        ...(!!searchFields && { searchFields }),
-        ...(!!search && { search }),
         page: page || 1,
-        ...(!!filter && { filter }),
-        ...(!!sort && { sort }),
-        ...(!!query && { query }),
-        ...(!!scope && { scope }),
-        ...(!!fields && { fields }),
+        ...rest,
       },
     };
 
     return this.errorWrapper(() => this.axios.get(`/${resource}`, config));
+  };
+
+  getAll = async ({ resource, ...rest }: GetAllProps) => {
+    const config = {
+      params: {
+        ...rest,
+      },
+    };
+
+    return this.errorWrapper(() => this.axios.get(`/${resource}/all`, config));
   };
 
   getOne = async ({ resource, id, populate, scope }: GetOne) => {
@@ -147,18 +145,18 @@ class ApiClass {
 
   delete = async ({ resource, id, params }: Delete) => {
     return this.errorWrapper(() =>
-      this.axios.delete(`/${resource}/${id}`, {
+      this.axios.delete(`/${resource}${id ? `/${id}` : ''}`, {
         data: params,
       }),
     );
   };
 
-  post = async ({ resource, params }: Create) => {
+  post = async ({ resource, params, config }: Create) => {
     return this.errorWrapper(() => this.axios.post(`/${resource}`, params));
   };
 
   getTenants = async ({ filter, page, query }: TableList) =>
-    await this.getAll({
+    await this.get({
       resource: Resources.TENANTS,
       filter,
       query,
@@ -194,7 +192,7 @@ class ApiClass {
     });
 
   getTenantUsers = async ({ filter, page, id, query }: TableList) =>
-    await this.getAll({
+    await this.get({
       resource: `${Resources.TENANTS}/${id}/${Resources.USERS}`,
       filter,
       query,
@@ -229,7 +227,7 @@ class ApiClass {
     });
 
   getUsers = async ({ filter, page, query, pageSize }: TableList) =>
-    await this.getAll({
+    await this.get({
       resource: Resources.USERS,
       populate: [Resources.PROFILES],
       filter,
@@ -319,7 +317,7 @@ class ApiClass {
     pageSize,
     query,
   }: TableList<FormFiltersProps>): Promise<GetAllResponse<Form>> =>
-    await this.getAll({
+    await this.get({
       resource: Resources.FORMS,
       populate: [Resources.CREATED_BY, Populations.TENANT],
       sort: [SortFields.CREATED_AT],
@@ -333,8 +331,6 @@ class ApiClass {
     await this.getOne({
       resource: Resources.FORMS,
       populate: [
-        Resources.CATEGORIES,
-        Populations.SUB_CATEGORIES,
         Populations.VISIT_INFO,
         Populations.GEOM,
         Populations.CAN_EDIT,
@@ -345,10 +341,20 @@ class ApiClass {
     });
 
   getCategories = async ({ filter, page, query }: TableList): Promise<GetAllResponse<Category>> =>
+    await this.get({
+      resource: Resources.CATEGORIES,
+      populate: [Populations.CHILDREN],
+      query: { parent: { $exists: false } },
+      page,
+      filter,
+    });
+
+  getAllCategories = async ({ filter, page }: TableList): Promise<Category[]> =>
     await this.getAll({
       resource: Resources.CATEGORIES,
       populate: [Populations.CHILDREN],
-      query,
+      query: { parent: { $exists: false } },
+      fields: ['id', 'name', 'children'],
       page,
       filter,
     });
@@ -376,7 +382,7 @@ class ApiClass {
   };
 
   getAdditionalInfos = async ({ filter, page, query }: TableList): Promise<any[]> =>
-    await this.getAll({
+    await this.get({
       resource: Resources.ADDITIONAL_INFOS,
       query,
       page,
@@ -405,7 +411,7 @@ class ApiClass {
   };
 
   getVisitInfos = async ({ filter, page, query }: TableList): Promise<any[]> =>
-    await this.getAll({
+    await this.get({
       resource: Resources.VISIT_INFOS,
       query,
       page,
@@ -461,10 +467,36 @@ class ApiClass {
     });
 
   getFormHistory = async ({ page, pageSize, id }: TableList) =>
-    await this.getAll({
+    await this.get({
       resource: `${Resources.FORMS}/${id}/${Resources.HISTORY}`,
       page,
       pageSize,
+    });
+
+  getAdditionalInfoIcons = async () =>
+    await this.get({
+      resource: Resources.ICONS,
+    });
+
+  createIcon = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const config = {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    };
+
+    return await this.post({
+      resource: Resources.ICONS,
+      params: formData,
+      config,
+    });
+  };
+
+  deleteIcon = async (icon: string) =>
+    await this.delete({
+      resource: `${Resources.ICONS}`,
+      params: { url: icon },
     });
 }
 

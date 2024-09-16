@@ -6,7 +6,7 @@ import LoaderComponent from '../../../components/other/LoaderComponent';
 import SimpleContainer from '../../../components/other/SimpleContainer';
 import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
 import { ColumnOne, FormRow, InnerContainer } from '../../../styles/CommonStyles';
-import { handleError, isNew } from '../../../utils/functions';
+import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
 import api from '../utils/api';
 import { getCategoriesOptions } from '../utils/functions';
 import { slugs } from '../utils/slugs';
@@ -16,14 +16,15 @@ import { validateInfo } from '../utils/validation';
 
 export interface CategoryProps {
   name: string;
+  nameEn: string;
   parent?: Category;
 }
 
 const CategoryForm = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id = '' } = useParams();
 
-  const { data: category, isLoading } = useQuery(['category', id], () => api.getCategory(id!), {
+  const { data: category, isLoading } = useQuery(['category', id], () => api.getCategory(id), {
     onError: () => {
       navigate(slugs.categories);
     },
@@ -46,7 +47,7 @@ const CategoryForm = () => {
 
   const createForm = useMutation((values: { [key: string]: any }) => api.createCategory(values), {
     onError: () => {
-      handleError();
+      handleErrorToastFromServer();
     },
     onSuccess: () => {
       navigate(slugs.categories);
@@ -58,7 +59,7 @@ const CategoryForm = () => {
     (values: { [key: string]: any }) => api.updateCategory(id!, values),
     {
       onError: () => {
-        handleError();
+        handleErrorToastFromServer();
       },
       onSuccess: () => {
         navigate(slugs.categories);
@@ -69,6 +70,7 @@ const CategoryForm = () => {
 
   const initialValues: CategoryProps = {
     name: category?.name || '',
+    nameEn: category?.nameEn || '',
     parent: category?.parent,
   };
 
@@ -77,7 +79,7 @@ const CategoryForm = () => {
       <InnerContainer>
         <ColumnOne>
           <SimpleContainer title={formLabels.info}>
-            <FormRow columns={2}>
+            <FormRow columns={1}>
               <AsyncSelect
                 label={inputLabels.parentCategory}
                 value={values?.parent}
@@ -94,6 +96,13 @@ const CategoryForm = () => {
                 error={errors?.name}
                 name="name"
                 onChange={(name) => handleChange('name', name)}
+              />
+              <TextField
+                label={inputLabels.nameEn}
+                value={values?.nameEn}
+                error={errors?.nameEn}
+                name="image.png"
+                onChange={(name) => handleChange('nameEn', name)}
               />
             </FormRow>
           </SimpleContainer>
