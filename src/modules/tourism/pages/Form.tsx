@@ -231,14 +231,30 @@ const FormPage = () => {
           );
 
           if (hasSelectedChild && !newSelection.includes(node.id)) {
+            if (values.categories.includes(node.id)) {
+              return true;
+            }
+
             newSelection.push(node.id);
           }
 
-          node.children.forEach(updateSelection);
+          for (let child of node.children) {
+            const shouldStop = updateSelection(child);
+            if (shouldStop) {
+              return true;
+            }
+          }
         }
+
+        return false;
       };
 
-      categories.forEach(updateSelection);
+      for (let category of categories) {
+        const shouldStop = updateSelection(category);
+        if (shouldStop) {
+          return;
+        }
+      }
 
       handleChange('categories', newSelection);
     };
