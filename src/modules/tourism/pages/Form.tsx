@@ -85,7 +85,6 @@ const FormPage = () => {
   const title = isNew(id) ? pageTitles.newForm : form?.nameLT!;
   const { data: categories = [] } = useQuery(['categories'], () => api.getAllCategories({}), {});
   const mapQueryString = !disabled ? '?types[]=point' : '?preview=true';
-  const { SHOW_PARENT } = TreeSelect;
   const createForm = useMutation(
     (values: { [key: string]: any }) =>
       isNew(id) ? api.createForm(values) : api.updateForm(id, values),
@@ -221,6 +220,28 @@ const FormPage = () => {
 
       handleChange('photos', [...values.photos, ...uploadedPhotos]);
     };
+    const handleTreeSelect = (newValue) => {
+      const newSelection = newValue.map((nV) => nV.value);
+
+      const updateSelection = (node) => {
+        if (!!node?.children?.length) {
+          const childValues = node.children.map((child) => child.id);
+          const hasSelectedChild = childValues.some((childValue) =>
+            newSelection.includes(childValue),
+          );
+
+          if (hasSelectedChild && !newSelection.includes(node.id)) {
+            newSelection.push(node.id);
+          }
+
+          node.children.forEach(updateSelection);
+        }
+      };
+
+      categories.forEach(updateSelection);
+
+      handleChange('categories', newSelection);
+    };
 
     return (
       <>
@@ -253,9 +274,9 @@ const FormPage = () => {
                       dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                       fieldNames={{ label: 'name', children: 'children', value: 'id' }}
                       treeCheckable
-                      onChange={(categories) => handleChange('categories', categories)}
+                      onChange={handleTreeSelect}
                       placeholder="Pasirinkite"
-                      showCheckedStrategy={SHOW_PARENT}
+                      treeCheckStrictly
                       disabled={disabled}
                     />
                   </RelativeFieldWrapper>
