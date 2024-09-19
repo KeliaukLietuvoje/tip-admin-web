@@ -1,57 +1,66 @@
+import {
+  AsyncMultiSelectField,
+  AsyncSelectField,
+  ButtonsGroup,
+  CheckBox,
+  device,
+  FieldWrapper,
+  MapField,
+  MultiSelectField,
+  NumericTextField,
+  SimpleContainer,
+  TextAreaField,
+  TextField,
+} from '@aplinkosministerija/design-system';
 import { TreeSelect } from 'antd';
 import { isEmpty } from 'lodash';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import AdditionalButtons from '../../../components/buttons/AdditionalButtons';
-import ButtonsGroup from '../../../components/buttons/ButtonsGroup';
-import CheckBox from '../../../components/buttons/Checkbox';
-import AsyncMultiSelect from '../../../components/fields/AsyncMultiSelect';
-import AsyncSelectField from '../../../components/fields/AsyncSelect';
-import MultiSelect from '../../../components/fields/MultiSelect';
-import NumericTextField from '../../../components/fields/NumericTextField';
-import PhotoFieldWithNames from '../../../components/fields/PhotoUploadFieldWithNames';
-import TextAreaField from '../../../components/fields/TextAreaField';
-import TextField from '../../../components/fields/TextField';
-import DrawMap from '../../../components/other/DrawMap';
-import LoaderComponent from '../../../components/other/LoaderComponent';
-import SimpleContainer from '../../../components/other/SimpleContainer';
-import FormPageWrapper from '../../../components/wrappers/FormPageWrapper';
-import { ColumnOne, ColumnTwo, FormContainer, FormRow } from '../../../styles/CommonStyles';
-import { DeleteInfoProps, FeatureCollection } from '../../../types';
-import { handleErrorToastFromServer, isNew } from '../../../utils/functions';
-import FormHistoryContainer from '../component/containers/FormHistory';
-
-import Switch from '../component/buttons/Switch';
-import FormPopup from '../component/other/FormPopup';
-import { default as api } from '../utils/api';
-import { Season, StatusTypes } from '../utils/constants';
-import { getAdditionalInfoOption, getVisitInfoOptions } from '../utils/functions';
-import { getSeasonOptions } from '../utils/options';
-
-import FieldWrapper from '../../../components/fields/components/FieldWrapper';
-import Icon from '../../../components/other/Icons';
-import { device } from '../../../styles';
-import { slugs } from '../utils/slugs';
+import api from '../api';
+import {
+  ColumnOne,
+  ColumnTwo,
+  Container,
+  FormPageWrapper,
+  FormRow,
+  LoaderComponent,
+  PhotoUploadFieldWithNames,
+  Switch,
+} from '../components';
+import FormHistoryContainer from '../components/containers/History';
+import Icon, { IconName } from '../components/other/Icons';
 import {
   buttonsTitles,
   deleteDescriptionFirstPart,
   deleteDescriptionSecondPart,
+  DeleteInfoProps,
   deleteTitles,
+  descriptions,
+  FeatureCollection,
   formHistoryLabels,
   formLabels,
+  getAdditionalInfoOption,
+  getSeasonOptions,
+  getVisitInfoOptions,
+  handleAlert,
+  Info,
   inputLabels,
+  isNew,
+  mapsHost,
   pageTitles,
+  Season,
   seasonLabels,
-} from '../utils/texts';
-import { Info, VisitDuration } from '../utils/types';
-import { validateForm } from '../utils/validation';
+  slugs,
+  StatusTypes,
+  validateForm,
+  VisitDuration,
+} from '../utils';
 
 interface FormProps {
   visitDuration?: VisitDuration;
   descriptionLT: string;
   comment?: string;
-  status?: StatusTypes;
   description: string;
   nameLT: string;
   name: string;
@@ -68,49 +77,31 @@ interface FormProps {
 }
 
 const FormPage = () => {
+  const { SHOW_PARENT } = TreeSelect;
   const navigate = useNavigate();
   const { id = '' } = useParams();
   const seasonOptions = getSeasonOptions();
   const queryClient = useQueryClient();
 
-  const { data: form, isLoading } = useQuery(['tourismForm', id], () => api.getForm(id), {
+  const { data: form, isLoading } = useQuery(['form', id], () => api.getForm(id), {
     onError: () => {
       navigate(slugs.forms);
     },
     enabled: !isNew(id),
   });
 
-  const disabled = !isNew(id) && !form?.canEdit;
-  const canValidate = form?.canValidate;
-  const title = isNew(id) ? pageTitles.newForm : form?.nameLT!;
   const { data: categories = [] } = useQuery(['categories'], () => api.getAllCategories({}), {});
-  const mapQueryString = !disabled ? '?types[]=point' : '?preview=true';
-  const createForm = useMutation(
-    (values: { [key: string]: any }) =>
-      isNew(id) ? api.createForm(values) : api.updateForm(id, values),
-    {
-      onError: () => {
-        handleErrorToastFromServer();
-      },
-      onSuccess: () => {
-        navigate(slugs.forms);
-      },
-      retry: false,
-    },
-  );
 
-  const disable = useMutation(() => api.formDisable(id), {
-    onError: () => {
-      handleErrorToastFromServer();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['tourismForm']);
-    },
-    retry: false,
-  });
+  const showSwitch = form?.status === StatusTypes.APPROVED;
+
+  const disabled = !isNew(id) && !form?.canEdit;
+  const title = isNew(id) ? pageTitles.newForm : form?.nameLT || '';
+
+  const mapPath = !disabled ? '/edit?types[]=point' : '/edit?preview=true';
+
   const removeForm = useMutation(() => api.deleteForm(id), {
     onError: () => {
-      handleErrorToastFromServer();
+      handleAlert();
     },
     onSuccess: () => {
       navigate(slugs.forms);
@@ -124,14 +115,37 @@ const FormPage = () => {
     deleteDescriptionSecondPart: deleteDescriptionSecondPart.form,
     deleteTitle: deleteTitles.form,
     deleteName: title,
-    handleDelete: !isNew(id) ? removeForm.mutateAsync : undefined,
+    deleteFunction: !isNew(id) ? removeForm.mutateAsync : undefined,
   };
+
+  const disable = useMutation(() => api.formDisable(id), {
+    onError: () => {
+      handleAlert();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['form', id]);
+    },
+    retry: false,
+  });
+
+  const createForm = useMutation(
+    (values: { [key: string]: any }) =>
+      !isNew(id) ? api.updateForm(id, values) : api.createForm(values),
+    {
+      onError: () => {
+        handleAlert();
+      },
+      onSuccess: () => {
+        navigate(slugs.forms);
+      },
+      retry: false,
+    },
+  );
 
   const uploadPhotos = useMutation((files: File[]) => api.uploadFormPhotos(files), {
     onError: () => {
-      handleErrorToastFromServer();
+      handleAlert();
     },
-    onSuccess: () => {},
     retry: false,
   });
 
@@ -147,13 +161,6 @@ const FormPage = () => {
       additionalInfos: getIds(values.additionalInfos),
     };
 
-    if (canValidate) {
-      return await createForm.mutateAsync({
-        status: values.status,
-        comment: values.comment,
-      });
-    }
-
     return await createForm.mutateAsync(params);
   };
 
@@ -162,7 +169,7 @@ const FormPage = () => {
 
     if (isEmpty(form?.seasons)) return [Season.ALL];
 
-    return form?.seasons!;
+    return form?.seasons || [];
   };
 
   const initialValues: FormProps = {
@@ -181,19 +188,13 @@ const FormPage = () => {
     isPaid: form?.isPaid || false,
     isAdaptedForForeigners: form?.isAdaptedForForeigners || false,
     photos: form?.photos || [],
-    status: undefined,
-    comment: '',
   };
 
   if (isLoading) {
     return <LoaderComponent />;
   }
 
-  const additionalButtons = (handleChange) => {
-    return <AdditionalButtons handleChange={handleChange} />;
-  };
-
-  const showSwitch = form?.status === StatusTypes.APPROVED;
+  const showPhotoContainer = !disabled || !isEmpty(form?.photos);
 
   const renderForm = (values: FormProps, errors: any, handleChange: any) => {
     const getSeasonOptions = () => {
@@ -209,9 +210,11 @@ const FormPage = () => {
     };
 
     const handleRemovePhoto = async (index) => {
+      if (!values?.photos) return;
+
       handleChange('photos', [
-        ...values.photos?.slice(0, index as number),
-        ...values.photos?.slice((index as number) + 1),
+        ...values.photos.slice(0, index as number),
+        ...values.photos.slice((index as number) + 1),
       ]);
     };
 
@@ -220,11 +223,12 @@ const FormPage = () => {
 
       handleChange('photos', [...values.photos, ...uploadedPhotos]);
     };
+
     const handleTreeSelect = (newValue) => {
       const newSelection = newValue.map((nV) => nV.value);
 
       const updateSelection = (node) => {
-        if (!!node?.children?.length) {
+        if (node?.children?.length) {
           const childValues = node.children.map((child) => child.id);
           const hasSelectedChild = childValues.some((childValue) =>
             newSelection.includes(childValue),
@@ -238,7 +242,7 @@ const FormPage = () => {
             newSelection.push(node.id);
           }
 
-          for (let child of node.children) {
+          for (const child of node.children) {
             const shouldStop = updateSelection(child);
             if (shouldStop) {
               return true;
@@ -249,7 +253,7 @@ const FormPage = () => {
         return false;
       };
 
-      for (let category of categories) {
+      for (const category of categories) {
         const shouldStop = updateSelection(category);
         if (shouldStop) {
           return;
@@ -267,15 +271,17 @@ const FormPage = () => {
               checked={form?.isActive}
               enabledLabel={'Aktyvus objektas'}
               disabledLabel={'Objektas laikinai neveikia'}
-              onChange={disable.mutateAsync}
+              onChange={() => {
+                disable.mutateAsync();
+              }}
             />
           </SwitchContainer>
         )}
-        <FormContainer>
+        <Container>
           <ColumnOne>
             <SimpleContainer title={formLabels.categories}>
               <FormRow columns={1}>
-                <Container>
+                <TreeSelectContainer>
                   <RelativeFieldWrapper
                     error={errors.categories}
                     showError={true}
@@ -286,17 +292,17 @@ const FormPage = () => {
                       value={values?.categories || []}
                       treeData={categories}
                       style={{ width: '100%' }}
-                      suffixIcon={<StyledIcons name={'dropdownArrow'} />}
+                      suffixIcon={<StyledIcons name={IconName.dropdownArrow} />}
                       dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                       fieldNames={{ label: 'name', children: 'children', value: 'id' }}
                       treeCheckable
                       onChange={handleTreeSelect}
                       placeholder="Pasirinkite"
-                      treeCheckStrictly
+                      showCheckedStrategy={SHOW_PARENT}
                       disabled={disabled}
                     />
                   </RelativeFieldWrapper>
-                </Container>
+                </TreeSelectContainer>
               </FormRow>
             </SimpleContainer>
             <SimpleContainer title={formLabels.LTInfo}>
@@ -314,7 +320,6 @@ const FormPage = () => {
                   value={values?.urlLT}
                   error={errors?.urlLT}
                   disabled={disabled}
-                  placeholder={'https://www.test.lt'}
                   name="urlLT"
                   onChange={(objectName) => handleChange('urlLT', objectName)}
                 />
@@ -348,7 +353,6 @@ const FormPage = () => {
                   disabled={disabled}
                   name="url"
                   onChange={(url) => handleChange('url', url)}
-                  placeholder={'https://www.test.lt'}
                 />
               </FormRow>
               <FormRow columns={1}>
@@ -363,36 +367,46 @@ const FormPage = () => {
               </FormRow>
             </SimpleContainer>
             <SimpleContainer title={formLabels.map}>
-              <DrawMap
-                queryString={mapQueryString}
+              <MapField
+                mapPath={mapPath}
+                mapHost={mapsHost}
                 error={errors?.geom}
-                onSave={(data) => handleChange('geom', data)}
-                value={values?.geom!}
+                onChange={(data) => {
+                  handleChange('geom', data);
+                }}
+                value={values?.geom}
                 height={'300px'}
               />
             </SimpleContainer>
-            <SimpleContainer title={formLabels.photos}>
-              <PhotoFieldWithNames
-                name={'photos'}
-                photos={values.photos ? values.photos : []}
-                handleDelete={handleRemovePhoto}
-                onUpload={handleUpload}
-                disabled={disabled}
-                getSrc={(photo) => photo.url}
-                getName={(photo) => photo.name}
-                getAuthor={(photo) => photo.author}
-                onChangeAuthor={(input, index) => handleChange(`photos.${index}.author`, input)}
-                onChangeName={(input, index) => handleChange(`photos.${index}.name`, input)}
-              />
-            </SimpleContainer>
+            {showPhotoContainer && (
+              <SimpleContainer title={formLabels.photos}>
+                <SubTItle>
+                  <IconContainer>
+                    <InfoIcon name={IconName.info} />
+                  </IconContainer>
+                  {descriptions.photoAuthor}
+                </SubTItle>
+                <PhotoUploadFieldWithNames
+                  name={'photos'}
+                  photos={values.photos ? values.photos : []}
+                  handleDelete={handleRemovePhoto}
+                  onUpload={handleUpload}
+                  disabled={disabled}
+                  getSrc={(photo) => photo.url}
+                  getName={(photo) => photo.name}
+                  getAuthor={(photo) => photo.author}
+                  onChangeAuthor={(input, index) => handleChange(`photos.${index}.author`, input)}
+                  onChangeName={(input, index) => handleChange(`photos.${index}.name`, input)}
+                />
+              </SimpleContainer>
+            )}
             <SimpleContainer title={formLabels.additionalInfo}>
               <FormRow columns={2}>
-                <MultiSelect
+                <MultiSelectField
                   label={inputLabels.season}
                   values={values?.seasons}
                   disabled={disabled}
                   error={errors?.seasons}
-                  name="seasons"
                   onChange={(seasons) => handleChange('seasons', seasons)}
                   getOptionLabel={(option) => seasonLabels[option]}
                   getOptionValue={(option) => option}
@@ -409,12 +423,12 @@ const FormPage = () => {
                   loadOptions={(input: string, page: number) => getVisitInfoOptions(input, page)}
                 />
 
-                <AsyncMultiSelect
+                <AsyncMultiSelectField
                   label={inputLabels.additionalInfo}
+                  name="additionalInfos"
                   values={values?.additionalInfos}
                   error={errors?.additionalInfos}
                   disabled={disabled}
-                  name="additionalInfos"
                   onChange={(additionalInfos) => handleChange('additionalInfos', additionalInfos)}
                   getOptionLabel={(option) => option?.name}
                   loadOptions={(input: string, page: number) =>
@@ -448,6 +462,7 @@ const FormPage = () => {
               </FormRow>
             </SimpleContainer>
             <SimpleContainer title={formLabels.visitDuration}>
+              <SubTItle>{descriptions.durationTime}</SubTItle>
               <FormRow columns={5}>
                 <NumericTextField
                   label={inputLabels.from}
@@ -487,8 +502,7 @@ const FormPage = () => {
               />
             </ColumnTwo>
           )}
-          <FormPopup onChange={handleChange} comment={values?.comment} status={values?.status!} />
-        </FormContainer>
+        </Container>
       </>
     );
   };
@@ -497,10 +511,10 @@ const FormPage = () => {
   }
   return (
     <FormPageWrapper
+      disabled={disabled}
       title={title}
       twoColumn={!isNew(id)}
       initialValues={initialValues}
-      additionalButtons={canValidate ? additionalButtons : undefined}
       onSubmit={handleSubmit}
       renderForm={renderForm}
       validationSchema={validateForm}
@@ -509,17 +523,44 @@ const FormPage = () => {
   );
 };
 
+export default FormPage;
+
+const StyledIcons = styled(Icon)`
+  color: #cdd5df;
+  font-size: 2.4rem;
+`;
+
 const SwitchContainer = styled.div`
   display: flex;
   margin-bottom: 20px;
 `;
 
+const InfoIcon = styled(Icon)``;
+
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SubTItle = styled.div`
+  margin-top: -8px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 15.6px;
+  color: ${({ theme }) => theme?.colors?.text?.secondary};
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+`;
+
 const StyledTreeSelect = styled(TreeSelect)<{ error: boolean }>`
   .ant-select-selector,
   .ant-select-selection-search-input {
-    min-height: 40px !important;
-    padding: 0 12px !important;
-    font-size: 1.6rem;
+    min-height: ${({ theme }) => `${theme.height?.fields || 5.6}rem`} !important;
+    padding: 0px 12px !important;
+    font-size: ${({ theme }) => theme.fontSize?.fields || 1.6}rem;
     display: flex;
     align-items: center;
   }
@@ -527,8 +568,16 @@ const StyledTreeSelect = styled(TreeSelect)<{ error: boolean }>`
     transition: none !important;
   }
 
-  .ant-select-selection-overflow-item {
-    padding-top: 4px;
+  .ant-select-selector {
+    border: 1px solid ${({ theme, error }) =>
+      error ? theme.colors.error : theme.colors.border} !important;
+    border-radius: ${({ theme }) => theme.radius?.fields || 0.4}rem; !important;
+    background-color: ${({ theme }) => theme.colors.fields?.background || 'white'};
+    color: ${({ theme }) => theme.colors.fields?.text || '#101010'};
+  }
+
+  .ant-select-selection-overflow-item{
+    padding-top:4px;
   }
 
   .ant-select-selector,
@@ -538,21 +587,21 @@ const StyledTreeSelect = styled(TreeSelect)<{ error: boolean }>`
     background: white !important;
   }
 
-  .ant-select-selector {
-    border: 1px solid ${({ theme, error }) => (!!error ? theme.colors.error : theme.colors.border)} !important;
-    border-radius: 4px !important;
-  }
 
   .ant-select-selector:focus-within {
-    border-color: ${({ theme }) => theme.colors.primary} !important;
-    box-shadow: 0 0 0 4px ${({ theme }) => `${theme.colors.primary}33`} !important;
+    border-color: ${({ theme }) =>
+      theme.colors.fields?.borderFocus || theme.colors.fields?.border || '#d4d5de'} !important;
+    box-shadow: ${({ theme }) =>
+      theme.colors.fields?.borderFocus
+        ? `0 0 0 4px ${theme.colors.fields.borderFocus}33`
+        : 'none'} !important;
     outline: none !important;
     animation-duration: 0s !important;
     transition: none !important;
   }
 `;
 
-const Container = styled.div`
+const TreeSelectContainer = styled.div`
   display: block;
   @media ${device.mobileL} {
     border: none;
@@ -562,10 +611,3 @@ const Container = styled.div`
 const RelativeFieldWrapper = styled(FieldWrapper)`
   position: relative;
 `;
-
-const StyledIcons = styled(Icon)`
-  color: #cdd5df;
-  font-size: 2.4rem;
-`;
-
-export default FormPage;
