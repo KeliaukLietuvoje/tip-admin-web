@@ -48,7 +48,10 @@ const urlRegex =
 
 export const validateForm = Yup.object().shape({
   categories: Yup.array().min(1, validationTexts.requiredSelect),
-  urlLT: Yup.string().trim().matches(urlRegex, validationTexts.badUrlFormat),
+  urlLT: Yup.string().trim().nullable().notRequired().matches(urlRegex, {
+    message: validationTexts.badUrlFormat,
+    excludeEmptyString: true,
+  }),
   nameLT: Yup.string().required(validationTexts.requireText).nullable(),
   geom: Yup.object().required(validationTexts.requiredMap).nullable(),
 });
