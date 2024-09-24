@@ -52,6 +52,10 @@ export const validateForm = Yup.object().shape({
     message: validationTexts.badUrlFormat,
     excludeEmptyString: true,
   }),
+  url: Yup.string().trim().nullable().notRequired().matches(urlRegex, {
+    message: validationTexts.badUrlFormat,
+    excludeEmptyString: true,
+  }),
   nameLT: Yup.string().required(validationTexts.requireText).nullable(),
   geom: Yup.object().required(validationTexts.requiredMap).nullable(),
 });
