@@ -224,7 +224,7 @@ const FormPage = () => {
       const newSelection = newValue.map((nV) => nV.value);
 
       const updateSelection = (node) => {
-        if (!!node?.children?.length) {
+        if (node?.children?.length) {
           const childValues = node.children.map((child) => child.id);
           const hasSelectedChild = childValues.some((childValue) =>
             newSelection.includes(childValue),
@@ -238,7 +238,7 @@ const FormPage = () => {
             newSelection.push(node.id);
           }
 
-          for (let child of node.children) {
+          for (const child of node.children) {
             const shouldStop = updateSelection(child);
             if (shouldStop) {
               return true;
@@ -249,7 +249,7 @@ const FormPage = () => {
         return false;
       };
 
-      for (let category of categories) {
+      for (const category of categories) {
         const shouldStop = updateSelection(category);
         if (shouldStop) {
           return;

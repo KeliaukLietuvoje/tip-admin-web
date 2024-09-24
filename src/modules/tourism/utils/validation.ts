@@ -48,15 +48,9 @@ const urlRegex =
 
 export const validateForm = Yup.object().shape({
   categories: Yup.array().min(1, validationTexts.requiredSelect),
-  seasons: Yup.array().min(1, validationTexts.requiredSelect),
-  urlLT: Yup.string()
-    .required(validationTexts.requireText)
-    .trim()
-    .matches(urlRegex, validationTexts.badUrlFormat),
+  urlLT: Yup.string().trim().matches(urlRegex, validationTexts.badUrlFormat),
   nameLT: Yup.string().required(validationTexts.requireText).nullable(),
-  descriptionLT: Yup.string().required(validationTexts.requireText).nullable(),
   geom: Yup.object().required(validationTexts.requiredMap).nullable(),
-  visitInfo: Yup.object().required(validationTexts.requiredSelect).nullable(),
 });
 
 export const validateInfo = Yup.object().shape({
