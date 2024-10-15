@@ -147,14 +147,14 @@ const FormPage = () => {
       additionalInfos: getIds(values.additionalInfos),
     };
 
-    if (canValidate) {
-      return await createForm.mutateAsync({
-        status: values.status,
-        comment: values.comment,
-      });
-    }
-
     return await createForm.mutateAsync(params);
+  };
+
+  const handleValidate = async (values: FormProps) => {
+    return await createForm.mutateAsync({
+      status: values.status,
+      comment: values.comment,
+    });
   };
 
   const getSeasons = () => {
@@ -487,7 +487,14 @@ const FormPage = () => {
               />
             </ColumnTwo>
           )}
-          <FormPopup onChange={handleChange} comment={values?.comment} status={values?.status!} />
+          <FormPopup
+            onValidate={() => {
+              handleValidate(values);
+            }}
+            onChange={handleChange}
+            comment={values?.comment}
+            status={values?.status!}
+          />
         </FormContainer>
       </>
     );

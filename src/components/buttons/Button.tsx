@@ -38,7 +38,7 @@ const Button = ({
   buttonPadding,
   rightIcon,
   color,
-  type,
+  type = 'button',
   loading = false,
   className,
   disabled = false,
