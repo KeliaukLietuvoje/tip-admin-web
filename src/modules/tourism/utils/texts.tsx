@@ -267,7 +267,7 @@ export const seasonLabels = {
 
 export const formHistoryLabels = {
   [HistoryTypes.CREATED]: 'Pateikta',
-  [HistoryTypes.UPDATED]: 'Pateikta pakartotinai',
+  [HistoryTypes.UPDATED]: 'Atnaujinta',
   [HistoryTypes.REJECTED]: 'Atmesta',
   [HistoryTypes.RETURNED]: 'Grąžinta taisyti',
   [HistoryTypes.APPROVED]: 'Priimta',
