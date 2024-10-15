@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { phoneNumberRegexPattern } from '../../../utils/constants';
 import { validationTexts } from '../../../utils/texts';
 
 export const validateUserForm = Yup.object().shape({
@@ -13,7 +14,7 @@ export const validateUserForm = Yup.object().shape({
   phone: Yup.string()
     .required(validationTexts.requireText)
     .trim()
-    .matches(/^(86|\+3706)\d{7}$/, validationTexts.badPhoneFormat),
+    .matches(phoneNumberRegexPattern, validationTexts.badPhoneFormat),
 });
 
 export const validateFormRowInfo = (values: { name: string; items: { [key: string]: any } }) => {

@@ -76,3 +76,5 @@ export enum ServerErrorCodes {
 }
 
 export const mapsHost = import.meta.env.VITE_MAPS_HOST;
+
+export const phoneNumberRegexPattern = new RegExp(`^(\\+370|8|0)(3|4|5|6|7|8|9)\\d{7}$`);

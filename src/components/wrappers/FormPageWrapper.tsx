@@ -127,12 +127,7 @@ const FormPageWrapper = ({
               {!disabled && canSubmit && (
                 <ButtonRow>
                   {onSubmit && (
-                    <Button
-                      onClick={handleSubmit}
-                      type="button"
-                      loading={loading}
-                      disabled={loading}
-                    >
+                    <Button onClick={handleSubmit} loading={loading} disabled={loading}>
                       {submitButtonText}
                     </Button>
                   )}
@@ -140,7 +135,6 @@ const FormPageWrapper = ({
                     <Button
                       onClick={() => onDecline()}
                       variant={ButtonColors.DANGER}
-                      type="button"
                       disabled={loading}
                     >
                       {buttonsTitles.decline}

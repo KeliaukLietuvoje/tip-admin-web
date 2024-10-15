@@ -1,31 +1,28 @@
-import styled from "styled-components";
-import Button, { ButtonColors } from "../../../../components/buttons/Button";
-import TextAreaField from "../../../../components/fields/TextAreaField";
-import Icon from "../../../../components/other/Icons";
-import Modal from "../../../../components/other/Modal";
-import { device } from "../../../../styles";
-import { StatusTypes } from "../../utils/constants";
+import styled from 'styled-components';
+import Button, { ButtonColors } from '../../../../components/buttons/Button';
+import TextAreaField from '../../../../components/fields/TextAreaField';
+import Icon from '../../../../components/other/Icons';
+import Modal from '../../../../components/other/Modal';
+import { device } from '../../../../styles';
+import { StatusTypes } from '../../utils/constants';
 import {
   actionButtonLabels,
   buttonColors,
   buttonsTitles,
   formActionLabels,
-  inputLabels
-} from "../../utils/texts";
+  inputLabels,
+} from '../../utils/texts';
 
 interface ObservationFormModalProps {
   status?: StatusTypes;
   onChange: (key: string, data: any) => void;
+  onValidate: () => void;
   comment?: string;
 }
 
-const FormPopUp = ({
-  status,
-  onChange,
-  comment
-}: ObservationFormModalProps) => {
+const FormPopUp = ({ status, onChange, comment, onValidate }: ObservationFormModalProps) => {
   const handleClose = () => {
-    onChange("status", "");
+    onChange('status', '');
   };
 
   const visible = !!status;
@@ -33,31 +30,26 @@ const FormPopUp = ({
     <Modal onClose={handleClose} visible={visible}>
       <Container>
         <IconContainer onClick={handleClose}>
-          <StyledCloseButton name={"close"} />
+          <StyledCloseButton name={'close'} />
         </IconContainer>
         <Title>{formActionLabels[status!]}</Title>
 
         <TextAreaField
           label={inputLabels.comment}
           value={comment}
-          padding={"16px 0 16px 0"}
+          padding={'16px 0 16px 0'}
           rows={2}
-          name={"comment"}
-          onChange={(comment) => onChange("comment", comment)}
+          name={'comment'}
+          onChange={(comment) => onChange('comment', comment)}
         />
 
         <BottomRow>
-          <BackButton
-            onClick={handleClose}
-            variant={ButtonColors.TRANSPARENT}
-            type="button"
-            height={32}
-          >
+          <StyledButton onClick={handleClose} variant={ButtonColors.TRANSPARENT} height={32}>
             {buttonsTitles.cancel}
-          </BackButton>
-          <BackButton variant={buttonColors[status!]} height={32}>
+          </StyledButton>
+          <StyledButton onClick={onValidate} variant={buttonColors[status!]} height={32}>
             {actionButtonLabels[status!]}
-          </BackButton>
+          </StyledButton>
         </BottomRow>
       </Container>
     </Modal>
@@ -99,7 +91,7 @@ const StyledCloseButton = styled(Icon)`
   }
 `;
 
-const BackButton = styled(Button)``;
+const StyledButton = styled(Button)``;
 
 const IconContainer = styled.div`
   cursor: pointer;
