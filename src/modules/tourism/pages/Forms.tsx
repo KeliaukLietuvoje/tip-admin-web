@@ -112,6 +112,7 @@ const Forms = () => {
               onClick={() => {
                 removeForms.mutateAsync();
               }}
+              loading={removeForms.isLoading}
               disabled={!selectedItemIds?.length}
             >
               {buttonsTitles.removeForms}
