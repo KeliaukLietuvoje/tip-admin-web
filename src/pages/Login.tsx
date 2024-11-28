@@ -1,6 +1,4 @@
 import { useFormik } from 'formik';
-import { useRef } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -22,16 +20,13 @@ interface LoginProps {
 }
 
 export const Login = () => {
-  const captchaRef = useRef<any>();
   const navigate = useNavigate();
   const handleLogin = async (values: LoginProps) => {
-    const captchaToken = await captchaRef?.current?.execute();
     const { email, password, refresh } = values;
     const params = {
       password,
       refresh,
       email: email.toLocaleLowerCase(),
-      captchaToken,
     };
 
     return await api.login(params);
@@ -100,12 +95,6 @@ export const Login = () => {
           {buttonsTitles.login}
         </StyledButton>
       </Row>
-
-      <ReCAPTCHA
-        ref={captchaRef}
-        size="invisible"
-        sitekey="6LdydlggAAAAAO-vBvg9yBWEVxlulH5b4X6BijMV"
-      />
     </Container>
   );
 };
