@@ -1,3 +1,4 @@
+import { DesignSystemProvider } from '@aplinkosministerija/design-system';
 import * as Sentry from '@sentry/react';
 import { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -48,7 +49,9 @@ root.render(
     <QueryClientProvider client={queryClient}>
       <PersistGate persistor={persistor}>
         <BrowserRouter basename={basename}>
-          <App />
+          <DesignSystemProvider>
+            <App />
+          </DesignSystemProvider>
         </BrowserRouter>
       </PersistGate>
     </QueryClientProvider>

@@ -1,15 +1,18 @@
+import { Table } from '@aplinkosministerija/design-system';
 import { isEmpty } from 'lodash';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 import Button from '../../../components/buttons/Button';
 import DynamicFilter from '../../../components/other/DynamicFilter';
 import { FilterInputTypes } from '../../../components/other/DynamicFilter/Filter';
-import MainTable from '../../../components/tables/MainTable';
 import PageWrapper from '../../../components/wrappers/PageWrapper';
 import { useAppSelector } from '../../../state/hooks';
 import { TableButtonsInnerRow, TableButtonsRow } from '../../../styles/CommonStyles';
 import { NotFoundInfoProps } from '../../../types';
+import { handleErrorToastFromServer } from '../../../utils/functions';
 import { useGenericTablePageHooks, useGetSortedColumns, useTableData } from '../../../utils/hooks';
 import { actions } from '../state/filters/reducer';
-import Api from '../utils/api';
+import { default as api, default as Api } from '../utils/api';
 import { getTenants, mapFormFilters, mapForms } from '../utils/functions';
 import { getFormStatusTypes } from '../utils/options';
 
@@ -60,7 +63,8 @@ const rowConfig = [['nameLT'], ['createdFrom', 'createdTo'], ['status'], ['tenan
 const Forms = () => {
   const { navigate, page, dispatch } = useGenericTablePageHooks();
   const filter = useAppSelector((state) => state.tourism.filters.form);
-
+  const [selectedItemIds, setSelectedItemIds] = useState<number[]>();
+  const queryClient = useQueryClient();
   const { tableData, loading } = useTableData({
     endpoint: () =>
       Api.getForms({
@@ -70,6 +74,16 @@ const Forms = () => {
     mapData: (list) => mapForms(list),
     dependencyArray: [page, filter],
     name: 'tourismForms',
+  });
+
+  const removeForms = useMutation(() => api.deleteForms({ ids: selectedItemIds }), {
+    onError: () => {
+      handleErrorToastFromServer();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['tourismForms']);
+    },
+    retry: false,
   });
 
   const handleSetFilters = (filter: any) => {
@@ -93,6 +107,16 @@ const Forms = () => {
             onSetFilters={handleSetFilters}
             disabled={loading}
           />
+          {!!selectedItemIds?.length && (
+            <Button
+              onClick={() => {
+                removeForms.mutateAsync();
+              }}
+              disabled={!selectedItemIds?.length}
+            >
+              {buttonsTitles.removeForms}
+            </Button>
+          )}
         </TableButtonsInnerRow>
         <Button
           onClick={() => {
@@ -103,13 +127,15 @@ const Forms = () => {
           {buttonsTitles.newForm}
         </Button>
       </TableButtonsRow>
-      <MainTable
-        onClick={(id: string) => navigate(slugs.form(id))}
+      <Table
+        onClick={(form: any) => navigate(slugs.form(form.id))}
         loading={loading}
         isFilterApplied={!isEmpty(filter)}
         data={tableData}
         notFoundInfo={notFoundInfo}
         columns={sortedColumns}
+        selectedItemIds={selectedItemIds}
+        onSetSelectedItemIds={(ids) => setSelectedItemIds(ids as number[])}
       />
     </PageWrapper>
   );
