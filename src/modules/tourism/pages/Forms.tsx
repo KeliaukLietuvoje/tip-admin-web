@@ -82,6 +82,7 @@ const Forms = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['tourismForms']);
+      setSelectedItemIds([]);
     },
     retry: false,
   });
@@ -113,6 +114,7 @@ const Forms = () => {
                 removeForms.mutateAsync();
               }}
               loading={removeForms.isLoading}
+              disabled={removeForms.isLoading}
             >
               {buttonsTitles.removeForms}
             </Button>
