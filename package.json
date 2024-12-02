@@ -4,6 +4,7 @@
   "private": true,
   "prettier": "@aplinkosministerija/biip-prettier-config",
   "dependencies": {
+    "@aplinkosministerija/design-system": "^1.1.4",
     "@reduxjs/toolkit": "^1.8.1",
     "@sentry/react": "^7.109.0",
     "@types/react": "^18.0.3",

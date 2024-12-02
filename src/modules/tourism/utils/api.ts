@@ -466,6 +466,12 @@ class ApiClass {
       id,
     });
 
+  deleteForms = async (params: any): Promise<Form> =>
+    await this.delete({
+      resource: Resources.FORMS,
+      params,
+    });
+
   getFormHistory = async ({ page, pageSize, id }: TableList) =>
     await this.get({
       resource: `${Resources.FORMS}/${id}/${Resources.HISTORY}`,

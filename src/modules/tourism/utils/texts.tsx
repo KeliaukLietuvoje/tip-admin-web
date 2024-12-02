@@ -140,6 +140,7 @@ export const buttonsTitles = {
   importData: 'Įkelti duomenis',
   cancel: 'Atšaukti',
   removeForm: 'Pašalinti turizmo objektą',
+  removeForms: 'Pašalinti pažymėtus turizmo objektus',
 };
 
 export const deleteDescriptionFirstPart = {
